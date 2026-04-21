@@ -2,19 +2,13 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 include "config/database.php";
- 
-/* STATS FOR HERO */
-$total_species   = $conn->query("SELECT COUNT(*) FROM species WHERE status='Approved'")->fetch_row()[0];
-$endangered_count= $conn->query("SELECT COUNT(*) FROM species WHERE status='Approved' AND threat_level='Endangered'")->fetch_row()[0];
-$vulnerable_count= $conn->query("SELECT COUNT(*) FROM species WHERE status='Approved' AND threat_level='Vulnerable'")->fetch_row()[0];
-$types_count     = $conn->query("SELECT COUNT(DISTINCT species_type) FROM species WHERE status='Approved'")->fetch_row()[0];
 
 $search       = $_GET['search'] ?? "";
 $type_filter  = $_GET['type']   ?? "";
 $threat_filter= $_GET['threat'] ?? "";
 
 /* MAIN QUERY */
-$sql = "SELECT * FROM species WHERE status='Approved'";
+$sql    = "SELECT * FROM species WHERE status='approved'";
 $params = [];
 $types  = "";
 
@@ -50,9 +44,9 @@ $result = $stmt->get_result();
 /* MAP DATA */
 $map_data  = [];
 $map_query = $conn->query("
-    SELECT species_id, species_name, species_type, latitude, longitude, threat_level, image_path
+    SELECT species_name, species_type, latitude, longitude, threat_level, image_path
     FROM species
-    WHERE status='Approved'
+    WHERE status='approved'
       AND latitude IS NOT NULL
       AND longitude IS NOT NULL
 ");
@@ -74,7 +68,7 @@ while ($row = $map_query->fetch_assoc()) {
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
+
     <style>
         /* GLOBAL */
         html, body {
@@ -182,42 +176,6 @@ while ($row = $map_query->fetch_assoc()) {
             color: #b7e4c7;
         }
 
-
-    /* HERO STATS */
-.hero-stats {
-    display: flex;
-    gap: 30px;
-    justify-content: center;
-    margin-top: 30px;
-    flex-wrap: wrap;
-}
-
-.hero-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 14px;
-    padding: 14px 24px;
-    min-width: 90px;
-}
-
-.stat-num {
-    font-size: 28px;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1;
-}
-
-.stat-lbl {
-    font-size: 11px;
-    color: #95d5b2;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-top: 4px;
-}
         /* BUTTONS */
         .btn {
             padding: 12px 28px;
@@ -441,7 +399,6 @@ while ($row = $map_query->fetch_assoc()) {
         <a href="index.php"><i class="fas fa-home"></i> Home</a>
         <a href="login.php"><i class="fas fa-user"></i> Login</a>
         <a href="register.php" class="register-btn"><i class="fas fa-user-plus"></i> Register</a>
-        <a href="quiz.php"><i class="fas fa-question-circle"></i> Quiz</a>
     </div>
 </div>
 
@@ -455,30 +412,10 @@ while ($row = $map_query->fetch_assoc()) {
         <h1>Green <span>Atlas</span></h1>
         <p>Explore Wildlife Like Never Before</p>
         <p class="hero-tagline">Discover • Explore • Protect Wildlife 🌿</p>
-    
         <div class="hero-buttons">
-    <a href="#explore" class="btn primary">Explore Now</a>
-    <a href="#" class="btn secondary">Learn More</a>
-</div>
-
-<div class="hero-stats">
-    <div class="hero-stat">
-        <span class="stat-num"><?php echo $total_species; ?></span>
-        <span class="stat-lbl">Species</span>
-    </div>
-    <div class="hero-stat">
-        <span class="stat-num" style="color:#ff4d4d"><?php echo $endangered_count; ?></span>
-        <span class="stat-lbl">Endangered</span>
-    </div>
-    <div class="hero-stat">
-        <span class="stat-num" style="color:#f59e0b"><?php echo $vulnerable_count; ?></span>
-        <span class="stat-lbl">Vulnerable</span>
-    </div>
-    <div class="hero-stat">
-        <span class="stat-num" style="color:#52b788"><?php echo $types_count; ?></span>
-        <span class="stat-lbl">Species Types</span>
-    </div>
-</div>
+            <a href="#explore" class="btn primary">Explore Now</a>
+            <a href="#" class="btn secondary">Learn More</a>
+        </div>
     </div>
 </div>
 
@@ -499,22 +436,17 @@ while ($row = $map_query->fetch_assoc()) {
                value="<?php echo htmlspecialchars($search); ?>">
 
         <select name="type">
-    <option value="">All Types</option>
-    <option value="Mammal"    <?php if($type_filter === 'Mammal')    echo 'selected'; ?>>Mammal</option>
-    <option value="Bird"      <?php if($type_filter === 'Bird')      echo 'selected'; ?>>Bird</option>
-    <option value="Reptile"   <?php if($type_filter === 'Reptile')   echo 'selected'; ?>>Reptile</option>
-    <option value="Amphibian" <?php if($type_filter === 'Amphibian') echo 'selected'; ?>>Amphibian</option>
-    <option value="Marine"    <?php if($type_filter === 'Marine')    echo 'selected'; ?>>Marine</option>
-    <option value="Fish"      <?php if($type_filter === 'Fish')      echo 'selected'; ?>>Fish</option>
-</select>
+            <option value="">All Types</option>
+            <option value="Mammal"  <?php if($type_filter  === 'Mammal')  echo 'selected'; ?>>Mammal</option>
+            <option value="Bird"    <?php if($type_filter  === 'Bird')    echo 'selected'; ?>>Bird</option>
+            <option value="Fish"    <?php if($type_filter  === 'Fish')    echo 'selected'; ?>>Fish</option>
+        </select>
 
-<select name="threat">
-    <option value="">All Threats</option>
-    <option value="Endangered"      <?php if($threat_filter === 'Endangered')      echo 'selected'; ?>>Endangered</option>
-    <option value="Vulnerable"      <?php if($threat_filter === 'Vulnerable')      echo 'selected'; ?>>Vulnerable</option>
-    <option value="Near Threatened" <?php if($threat_filter === 'Near Threatened') echo 'selected'; ?>>Near Threatened</option>
-    <option value="Low"             <?php if($threat_filter === 'Low')             echo 'selected'; ?>>Low</option>
-</select>
+        <select name="threat">
+            <option value="">All Threats</option>
+            <option value="Endangered" <?php if($threat_filter === 'Endangered') echo 'selected'; ?>>Endangered</option>
+            <option value="Vulnerable" <?php if($threat_filter === 'Vulnerable') echo 'selected'; ?>>Vulnerable</option>
+        </select>
 
         <button type="submit">Apply</button>
     </form>
@@ -581,14 +513,17 @@ while ($row = $map_query->fetch_assoc()) {
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Leaflet MarkerCluster JS -->
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
 <script>
+    /* MAP OVERLAY TOGGLE */
     function enableMap() {
         document.querySelector('.map-overlay').classList.add('hidden');
         map.scrollWheelZoom.enable();
     }
 
+    /* INIT MAP */
     var map = L.map('map', {
         scrollWheelZoom: false,
         dragging: true,
@@ -596,70 +531,68 @@ while ($row = $map_query->fetch_assoc()) {
         doubleClickZoom: true
     }).setView([20.5937, 78.9629], 5);
 
+    /* TILE LAYER */
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data &copy; OpenStreetMap contributors'
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
     }).addTo(map);
 
+    /* CLUSTER GROUP */
     var markers = L.markerClusterGroup({
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true,
         spiderfyOnMaxZoom: true,
         iconCreateFunction: function(cluster) {
             var childMarkers = cluster.getAllChildMarkers();
-            var html = childMarkers[0].options.icon.options.html;
+            var firstMarker  = childMarkers[0];
+            var html         = firstMarker.options.icon.options.html;
+
             return L.divIcon({
-                html: `<div style="position:relative;display:inline-block;">
-                    ${html}
-                    <span style="position:absolute;bottom:-5px;right:-5px;background:#000;color:#fff;padding:3px 6px;border-radius:10px;font-size:10px;">${childMarkers.length}</span>
-                </div>`,
+                html: `
+                    <div class="cluster-bubble" style="position:relative;display:inline-block;">
+                        ${html}
+                        <span style="
+                            position:absolute;
+                            bottom:-5px;
+                            right:-5px;
+                            background:#000;
+                            color:#fff;
+                            padding:3px 6px;
+                            border-radius:10px;
+                            font-size:10px;
+                        ">${childMarkers.length}</span>
+                    </div>
+                `,
                 className: "custom-cluster",
                 iconSize: L.point(60, 60)
             });
         }
     });
 
+    /* MAP DATA FROM PHP */
     var data = <?php echo json_encode($map_data); ?>;
 
+    /* ADD MARKERS */
     data.forEach(function(row) {
         var imagePath = (row.image_path && row.image_path !== "")
             ? "uploads/" + row.image_path
             : "uploads/default.jpg";
 
         var glowClass = "glow-green";
-        if (row.threat_level === "Endangered")      glowClass = "glow-red";
+        if (row.threat_level === "Endangered")     glowClass = "glow-red";
         else if (row.threat_level === "Vulnerable") glowClass = "glow-orange";
 
         var customIcon = L.divIcon({
-            html: `<div class="animal-marker ${glowClass}">
-                <img src="${imagePath}" onerror="this.src='uploads/default.jpg'">
-            </div>`,
+            html: `
+                <div class="animal-marker ${glowClass}">
+                    <img src="${imagePath}" onerror="this.src='uploads/default.jpg'">
+                </div>
+            `,
             className: "",
             iconSize: [40, 40]
         });
 
         var marker = L.marker([row.latitude, row.longitude], { icon: customIcon })
-            .bindPopup(`
-                <div style="font-family:Poppins,sans-serif;width:180px;text-align:center;">
-                    <img src="${imagePath}"
-                         onerror="this.src='uploads/default.jpg'"
-                         style="width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:8px;">
-                    <div style="font-weight:600;font-size:14px;margin-bottom:2px;">${row.species_name}</div>
-                    <div style="font-size:12px;color:#666;margin-bottom:6px;">${row.species_type}</div>
-                    <div style="
-                        display:inline-block;font-size:11px;font-weight:600;
-                        padding:3px 10px;border-radius:12px;margin-bottom:10px;
-                        background:${row.threat_level==='Endangered'?'#ff4d4d22':row.threat_level==='Vulnerable'?'#f59e0b22':'#22c55e22'};
-                        color:${row.threat_level==='Endangered'?'#ff4d4d':row.threat_level==='Vulnerable'?'#f59e0b':'#22c55e'};
-                    ">${row.threat_level}</div><br>
-                    <a href="species_detail.php?id=${row.species_id}" style="
-                        display:inline-block;padding:7px 18px;
-                        background:linear-gradient(90deg,#52b788,#40916c);
-                        color:white;text-decoration:none;border-radius:20px;
-                        font-size:12px;font-weight:600;">
-                        View Details →
-                    </a>
-                </div>
-            `, { maxWidth: 210 });
+            .bindPopup(`<b>${row.species_name}</b><br>${row.species_type}<br>${row.threat_level}`);
 
         markers.addLayer(marker);
     });
